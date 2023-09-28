@@ -2,73 +2,83 @@ import discord
 from discord.ext import commands
 import asyncio
 import speech_recognition as sr
+import random
+
+# Token do seu bot do Discord
+TOKEN = 'MTE1NzAwMjU5ODg4MTE2NTM2Mg.GA2tCf.p8ILQpC9F_jaNAkn7YMkhKI26s5IxT7v4ntnks'
+
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# Configuração do reconhecimento de fala
-r = sr.Recognizer()
+# Variável para contar a quantidade de vezes que "mamou" ou "mamei" foi dito
+count_mamou_mamei = 0
 
-# Palavras-chave para reconhecimento
-keywords = ["mamei", "mamou", "mamar", "mamada"]
-word_counts = {word: 0 for word in keywords}
+# Lista de respostas possíveis
+responses = ["Abra a boca então", "O charuto agora é outro", "Hmmmmmm", "Com 2 rabiscada, a caneta azul, já sai tinta"]
 
 @bot.event
 async def on_ready():
     print(f'Bot conectado como {bot.user.name}')
 
 @bot.command()
-async def voice(ctx):
+async def listen(ctx):
+    global count_mamou_mamei  # Usamos 'global' para acessar a variável fora da função
+
     if ctx.author.voice:
-        # Conecta-se ao canal de voz do autor
         voice_channel = ctx.author.voice.channel
         voice_client = await voice_channel.connect()
 
+        recognizer = sr.Recognizer()
+        recognizer.energy_threshold = 4000
+
         try:
-            # Aguarda até que o usuário fale algo (10 segundos de gravação)
-            await asyncio.sleep(10)
+            while True:
+                with sr.Microphone() as source:
+                    print("Estou ouvindo... Fale algo!")
+                    audio = recognizer.listen(source)
 
-            # Grava o áudio do canal de voz em um arquivo temporário
-            voice_client.stop()
-            voice_client.source = discord.PCMVolumeTransformer(voice_client.source)
-            voice_client.source.volume = 1.0
-            voice_client.source.readinto = lambda b: None  # Evita reprodução do áudio
-            voice_client.source.seek(0)
+                try:
+                    recognized_text = recognizer.recognize_google(audio, language="pt-BR")
+                    print("Texto reconhecido:", recognized_text)
 
-            audio_data = voice_client.source
-            with open("audio.wav", "wb") as f:
-                while True:
-                    chunk = audio_data.read(4096)
-                    if not chunk:
-                        break
-                    f.write(chunk)
+                    # Verifique se a frase exata "vamos ver" está presente no texto reconhecido
+                    if "vamos ver" in recognized_text.lower():
+                        await ctx.send("vamo ver ", tts=True)
+            
+                    # Verifique se a frase exata "botaram" está presente no texto reconhecido
+                    elif "botaram" in recognized_text.lower():
+                        await ctx.send("botaram ", tts=True)
 
-            # Reconhece o texto a partir do áudio
-            with sr.AudioFile("audio.wav") as source:
-                audio = r.record(source)
-                print("Estou ouvindo... Fale algo!")
-                recognized_text = r.recognize_google(audio, language="pt-BR")
-                print("Texto reconhecido:", recognized_text)
+                    # Verifique se a palavra "tá falando" está presente no texto reconhecido
+                    elif "tá falando" in recognized_text.lower():
+                        await ctx.send("ta falando comigo?", tts=True)
 
-                # Verifica as palavras-chave no texto reconhecido e atualiza as contagens
-                for word in keywords:
-                    if word in recognized_text.lower():
-                        word_counts[word] += 1
+                    # Verifique se alguma das palavras-chave está presente no texto reconhecido
+                    elif any(keyword in recognized_text.lower() for keyword in ["mama","mamei", "mamou", "mamada", "mamando", "cu"]):
+                        response = random.choice(responses)
+                        await ctx.send(f"{response}", tts=True)
 
-                # Responde à mensagem com o texto reconhecido e as contagens
-                await ctx.send(f"Texto reconhecido: {recognized_text}")
-                await ctx.send(f"Contagens: {', '.join(f'{word}: {count}' for word, count in word_counts.items())}")
-        except sr.UnknownValueError:
-            await ctx.send("Não foi possível reconhecer o áudio")
-        except Exception as e:
-            await ctx.send(f"Ocorreu um erro: {str(e)}")
+                        # Verifique se "mamou" ou "mamei" está presente no texto reconhecido e atualize a contagem
+                        if "mamou" in recognized_text.lower() or "mamei" in recognized_text.lower():
+                            count_mamou_mamei += 1
+                            await ctx.send(f"Quantidade de vezes que 'mamou' ou 'mamei' foi dito: {count_mamou_mamei}")
 
-        # Desconecta-se do canal de voz
-        await voice_client.disconnect()
+                except sr.UnknownValueError:
+                    print("Não foi possível reconhecer o áudio")
+
+        except KeyboardInterrupt:
+            print("Parando de ouvir...")
+        finally:
+            await voice_client.disconnect()
     else:
         await ctx.send("Você precisa estar em um canal de voz para usar este comando.")
 
-# Iniciar o bot com o token
-bot.run('MTE1NzAwMjU5ODg4MTE2NTM2Mg.GggG5h.hT6v1jYhg3dLdPvn8QjzPzm4df-DbVKXmIgdgU')
+bot.run(TOKEN)
+
+
+
+
+
