@@ -5,7 +5,7 @@ import speech_recognition as sr
 import random
 
 # Token do seu bot do Discord
-TOKEN = 'MTE1NzAwMjU5ODg4MTE2NTM2Mg.GA2tCf.p8ILQpC9F_jaNAkn7YMkhKI26s5IxT7v4ntnks'
+TOKEN = 'MTE1NzAwMjU5ODg4MTE2NTM2Mg.GVR2rU.LSUvsPfE93eG1XSos1--VCiGmmZqAB-FLBlEtE'
 
 
 intents = discord.Intents.default()
@@ -46,12 +46,16 @@ async def listen(ctx):
 
                     # Verifique se a frase exata "vamos ver" está presente no texto reconhecido
                     if "vamos ver" in recognized_text.lower():
-                        await ctx.send("vamo ver ", tts=True)
-            
+                        await ctx.send("vamo ver o cu dele", tts=True)
                     # Verifique se a frase exata "botaram" está presente no texto reconhecido
                     elif "botaram" in recognized_text.lower():
-                        await ctx.send("botaram ", tts=True)
+                        await ctx.send("botaram no cu do menor", tts=True)
 
+                    elif "quantos macacos" in recognized_text.lower():
+                        await ctx.send("o tanto que tem na tua casa", tts=True)
+                        
+                    elif "macaco" in recognized_text.lower():
+                        await ctx.send("olha o macaco", tts=True)
                     # Verifique se a palavra "tá falando" está presente no texto reconhecido
                     elif "tá falando" in recognized_text.lower():
                         await ctx.send("ta falando comigo?", tts=True)
