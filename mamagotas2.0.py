@@ -1,11 +1,12 @@
 import discord
 from discord.ext import commands
+from voices import voices, responses
 import asyncio
 import speech_recognition as sr
 import random
 
 # Token do seu bot do Discord
-TOKEN = 'MTE1NzAwMjU5ODg4MTE2NTM2Mg.GVR2rU.LSUvsPfE93eG1XSos1--VCiGmmZqAB-FLBlEtE'
+TOKEN = 'MTE1NzAwMjU5ODg4MTE2NTM2Mg.GYqse-.lrtVLz6qsFpGge2-WPFL97quc9MJ4wK-pfU5Fo'
 
 
 intents = discord.Intents.default()
@@ -17,7 +18,6 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 count_mamou_mamei = 0
 
 # Lista de respostas possíveis
-responses = ["Abra a boca então", "O charuto agora é outro", "Hmmmmmm", "Com 2 rabiscada, a caneta azul, já sai tinta"]
 
 @bot.event
 async def on_ready():
@@ -44,31 +44,20 @@ async def listen(ctx):
                     recognized_text = recognizer.recognize_google(audio, language="pt-BR")
                     print("Texto reconhecido:", recognized_text)
 
-                    # Verifique se a frase exata "vamos ver" está presente no texto reconhecido
-                    if "vamos ver" in recognized_text.lower():
-                        await ctx.send("vamo ver o cu dele", tts=True)
-                    # Verifique se a frase exata "botaram" está presente no texto reconhecido
-                    elif "botaram" in recognized_text.lower():
-                        await ctx.send("botaram no cu do menor", tts=True)
+                    for key in voices.keys():
+                        if key in recognized_text.lower():
+                            await ctx.send(voices[key], tts=True)
+                        # Verifique se alguma das palavras-chave está presente no texto reconhecido
+                        elif any(keyword in recognized_text.lower() for keyword in ["mama","mamei", "mamou", "mamada", "mamando", "cu"]):
+                            response = random.choice(responses)
+                            await ctx.send(f"{response}", tts=True)
 
-                    elif "quantos macacos" in recognized_text.lower():
-                        await ctx.send("o tanto que tem na tua casa", tts=True)
-                        
-                    elif "macaco" in recognized_text.lower():
-                        await ctx.send("olha o macaco", tts=True)
-                    # Verifique se a palavra "tá falando" está presente no texto reconhecido
-                    elif "tá falando" in recognized_text.lower():
-                        await ctx.send("ta falando comigo?", tts=True)
+                            # Verifique se "mamou" ou "mamei" está presente no texto reconhecido e atualize a contagem
+                            if "mamou" in recognized_text.lower() or "mamei" in recognized_text.lower():
+                                count_mamou_mamei += 1
+                                await ctx.send(f"Quantidade de vezes que 'mamou' ou 'mamei' foi dito: {count_mamou_mamei}")
 
-                    # Verifique se alguma das palavras-chave está presente no texto reconhecido
-                    elif any(keyword in recognized_text.lower() for keyword in ["mama","mamei", "mamou", "mamada", "mamando", "cu"]):
-                        response = random.choice(responses)
-                        await ctx.send(f"{response}", tts=True)
-
-                        # Verifique se "mamou" ou "mamei" está presente no texto reconhecido e atualize a contagem
-                        if "mamou" in recognized_text.lower() or "mamei" in recognized_text.lower():
-                            count_mamou_mamei += 1
-                            await ctx.send(f"Quantidade de vezes que 'mamou' ou 'mamei' foi dito: {count_mamou_mamei}")
+                    
 
                 except sr.UnknownValueError:
                     print("Não foi possível reconhecer o áudio")
