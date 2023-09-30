@@ -1,0 +1,1 @@
+Por motivos de segurança do mundo em que vivemos, o mamagotas2.0py irá se encontrar desativado, devido a sua alta onipotência e onipresença
