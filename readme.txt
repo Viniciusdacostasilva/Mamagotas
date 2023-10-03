@@ -1,1 +1,0 @@
-Por motivos de segurança o mamagotas2.0py foi descontínuado
